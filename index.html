@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Who Is Hosting This - IP Lookup Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #0a0a0a;
+            color: #fff;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px;
+            width: 100%;
+        }
+
+        .search-box {
+            background: #252537;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            border: 1px solid #383854;
+        }
+
+        h1 {
+            text-align: center;
+            color: #fff;
+            margin-bottom: 30px;
+            font-size: 2.2em;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        input {
+            flex: 1;
+            padding: 15px;
+            border: 1px solid #383854;
+            border-radius: 8px;
+            font-size: 16px;
+            background: #2d2d45;
+            color: #fff;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #8A2BE2;
+            box-shadow: 0 0 0 2px rgba(138, 43, 226, 0.2);
+        }
+
+        button {
+            padding: 15px 30px;
+            background: #8A2BE2;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: #7B1FA2;
+            transform: translateY(-2px);
+        }
+
+        .result {
+            background: #2d2d45;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+            border: 1px solid #383854;
+        }
+
+        .result-item {
+            display: flex;
+            margin: 10px 0;
+            padding: 15px;
+            background: #252537;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .result-item:hover {
+            background: #2d2d45;
+            transform: translateX(5px);
+        }
+
+        .result-label {
+            font-weight: bold;
+            width: 150px;
+            color: #8A2BE2;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+            color: #8A2BE2;
+        }
+
+        .error {
+            color: #ff6b6b;
+            text-align: center;
+            margin-top: 10px;
+            display: none;
+            padding: 10px;
+            background: rgba(255, 107, 107, 0.1);
+            border-radius: 8px;
+        }
+
+        .limits-info {
+            text-align: center;
+            color: #808eb1;
+            margin-top: 20px;
+            font-size: 0.9em;
+        }
+
+        .limits-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            background: rgba(138, 43, 226, 0.1);
+            border-radius: 20px;
+            margin: 5px;
+            border: 1px solid rgba(138, 43, 226, 0.2);
+        }
+
+        .note {
+            text-align: center;
+            color: #808eb1;
+            margin-top: 15px;
+            font-size: 0.85em;
+            padding: 10px;
+            background: rgba(138, 43, 226, 0.05);
+            border-radius: 8px;
+        }
+
+        .help-text {
+            background: #2d2d45;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: #a0a0c0;
+            border: 1px solid #383854;
+        }
+
+        .help-text code {
+            background: #252537;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #8A2BE2;
+            font-family: monospace;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            color: #808eb1;
+            font-size: 0.9em;
+        }
+
+        .footer a {
+            color: #8A2BE2;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer a:hover {
+            color: #7B1FA2;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 600px) {
+            .input-group {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+            }
+
+            .result-item {
+                flex-direction: column;
+            }
+
+            .result-label {
+                margin-bottom: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="search-box">
+            <h1>Who Is Hosting This?</h1>
+            <div class="input-group">
+                <input type="text" id="domainInput" placeholder="Enter IP address (e.g., 8.8.8.8)...">
+                <button onclick="lookup()">Lookup</button>
+            </div>
+            <div class="note">
+                ⚠️ This tool only works with IP addresses. For domains, please use their IP address.
+            </div>
+            <div class="help-text">
+                To find an IP address for a domain:
+                <br>
+                Windows: Open Command Prompt and type <code>ping domain.com</code>
+                <br>
+                Mac/Linux: Open Terminal and type <code>ping domain.com</code> or <code>dig domain.com</code>
+            </div>
+            <div class="loading" id="loading">
+                Searching...
+            </div>
+            <div class="error" id="error"></div>
+            <div class="result" id="result">
+                <div class="result-item">
+                    <span class="result-label">IP Address</span>
+                    <span id="ip"></span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Country</span>
+                    <span id="country"></span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">ISP</span>
+                    <span id="isp"></span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Organization</span>
+                    <span id="org"></span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Region</span>
+                    <span id="region"></span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">City</span>
+                    <span id="city"></span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Timezone</span>
+                    <span id="timezone"></span>
+                </div>
+            </div>
+            <!--div class="limits-info">
+                <div class="limits-badge">45 lookups/minute per IP</div>
+                <div class="limits-badge">10,000 lookups/day per IP</div>
+            </div>
+        </div>-->
+        <div class="footer">
+            Powered by <a href="https://maxly.io" target="_blank">Maxly.io</a> - Web Hosting that cares about you
+        </div>
+    </div>
+
+    <script>
+        const RATE_LIMIT = {
+            PER_MINUTE: 45,
+            PER_DAY: 10000,
+            MINUTE_WINDOW: 60000,
+            KEY_PREFIX: 'ip_lookup_'
+        };
+
+        function isValidIP(ip) {
+            const ipRegex = /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/;
+            if (!ipRegex.test(ip)) return false;
+
+            const parts = ip.split('.');
+            return parts.every(part => {
+                const num = parseInt(part, 10);
+                return num >= 0 && num <= 255;
+            });
+        }
+
+        function showError(message) {
+            const error = document.getElementById('error');
+            error.textContent = message;
+            error.style.display = 'block';
+            document.getElementById('result').style.display = 'none';
+        }
+
+        function checkRateLimits() {
+            const now = Date.now();
+            const minuteKey = `${RATE_LIMIT.KEY_PREFIX}minute_${Math.floor(now / RATE_LIMIT.MINUTE_WINDOW)}`;
+            const dayKey = `${RATE_LIMIT.KEY_PREFIX}day_${Math.floor(now / (24 * 60 * 60 * 1000))}`;
+
+            // Clean up old entries
+            for (let i = localStorage.length - 1; i >= 0; i--) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith(RATE_LIMIT.KEY_PREFIX)) {
+                    const timestamp = parseInt(key.split('_')[2]);
+                    if (now - timestamp > RATE_LIMIT.MINUTE_WINDOW) {
+                        localStorage.removeItem(key);
+                    }
+                }
+            }
+
+            // Check minute limit
+            const minuteCount = parseInt(localStorage.getItem(minuteKey) || 0);
+            if (minuteCount >= RATE_LIMIT.PER_MINUTE) {
+                return "Rate limit exceeded. Please wait a minute before trying again.";
+            }
+
+            // Check daily limit
+            const dayCount = parseInt(localStorage.getItem(dayKey) || 0);
+            if (dayCount >= RATE_LIMIT.PER_DAY) {
+                return "Daily limit reached. Please try again tomorrow.";
+            }
+
+            // Update counters
+            localStorage.setItem(minuteKey, minuteCount + 1);
+            localStorage.setItem(dayKey, dayCount + 1);
+            return null;
+        }
+
+        async function lookup() {
+            const input = document.getElementById('domainInput').value.trim();
+            if (!input) return;
+
+            // Validate IP address format
+            if (!isValidIP(input)) {
+                showError('Please enter a valid IP address (e.g., 8.8.8.8). Domain names are not supported.');
+                return;
+            }
+
+            // Check rate limits
+            const rateLimitError = checkRateLimits();
+            if (rateLimitError) {
+                showError(rateLimitError);
+                return;
+            }
+
+            const loading = document.getElementById('loading');
+            const result = document.getElementById('result');
+            const error = document.getElementById('error');
+
+            loading.style.display = 'block';
+            result.style.display = 'none';
+            error.style.display = 'none';
+
+            try {
+                const response = await fetch(`https://ipwho.is/${input}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('ip').textContent = data.ip;
+                    document.getElementById('country').textContent = data.country;
+                    document.getElementById('isp').textContent = data.connection.isp;
+                    document.getElementById('org').textContent = data.connection.org || 'N/A';
+                    document.getElementById('region').textContent = data.region;
+                    document.getElementById('city').textContent = data.city;
+                    document.getElementById('timezone').textContent = data.timezone.id;
+
+                    result.style.display = 'block';
+                } else {
+                    showError(data.message || 'Unable to find information for this IP');
+                }
+            } catch (err) {
+                showError('Error looking up information. Please try again.');
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+
+        document.getElementById('domainInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                lookup();
+            }
+        });
+    </script>
+</body>
+</html>
