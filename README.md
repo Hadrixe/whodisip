@@ -60,8 +60,8 @@ To run locally:
 
 ## ⚡ Powered By
 
-https://maxly.io - Web Hosting that cares about you
+https://ditchbear.com - A up and coming Priavate Email & VPN Service providerm, that believe that privacy is a human right.
 
 ---
 
-Made with ❤️ by the Maxly.io team
+Made with ❤️ by the ditchbear.com team
