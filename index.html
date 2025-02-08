@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WhoDisIP - IP Lookup Tool</title>
+    <title>WhoDisIP - IP & Domain Lookup Tool</title>
     <style>
         * {
             margin: 0;
@@ -41,6 +41,20 @@
             color: #fff;
             margin-bottom: 30px;
             font-size: 2.2em;
+        }
+
+        .lookup-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #2d2d45;
+            border-radius: 10px;
+            border: 1px solid #383854;
+        }
+
+        .lookup-section h2 {
+            color: #8A2BE2;
+            margin-bottom: 15px;
+            font-size: 1.5em;
         }
 
         .input-group {
@@ -148,14 +162,6 @@
             border: 1px solid #383854;
         }
 
-        .help-text code {
-            background: #252537;
-            padding: 2px 6px;
-            border-radius: 4px;
-            color: #8A2BE2;
-            font-family: monospace;
-        }
-
         .footer {
             text-align: center;
             margin-top: 20px;
@@ -226,20 +232,28 @@
     <div class="container">
         <div class="search-box">
             <h1>WhoDisIP</h1>
-            <div class="input-group">
-                <input type="text" id="domainInput" placeholder="Enter IP address (e.g., 8.8.8.8)...">
-                <button onclick="lookup()">Lookup</button>
+
+            <!-- IP Lookup Section -->
+            <div class="lookup-section">
+                <h2>IP Address Lookup</h2>
+                <div class="input-group">
+                    <input type="text" id="ipInput" placeholder="Enter IP address (e.g., 8.8.8.8)...">
+                    <button onclick="lookupIP()">IP Lookup</button>
+                </div>
+                <div class="note">
+                    ⚠️ To find the IP address of a domain name, use the Domain Lookup tool below
+                </div>
             </div>
-            <div class="note">
-                ⚠️ This tool only works with IP addresses. For domains, please use their IP address.
+
+            <!-- Domain Lookup Section -->
+            <div class="lookup-section">
+                <h2>Domain Lookup</h2>
+                <div class="input-group">
+                    <input type="text" id="domainInput" placeholder="Enter domain (e.g., google.com)...">
+                    <button onclick="lookupDomain()">Domain Lookup</button>
+                </div>
             </div>
-            <div class="help-text">
-                To find an IP address for a domain:
-                <br>
-                Windows: Open Command Prompt and type <code>ping domain.com</code>
-                <br>
-                Mac/Linux: Open Terminal and type <code>ping domain.com</code> or <code>dig domain.com</code>
-            </div>
+
             <div class="loading" id="loading">
                 Searching...
             </div>
@@ -289,11 +303,18 @@
     </div>
 
     <script>
-        const RATE_LIMIT = {
+        const IP_RATE_LIMIT = {
             PER_MINUTE: 45,
             PER_DAY: 10000,
             MINUTE_WINDOW: 60000,
             KEY_PREFIX: 'ip_lookup_'
+        };
+
+        const DOMAIN_RATE_LIMIT = {
+            PER_MINUTE: 10,
+            PER_DAY: 100,
+            MINUTE_WINDOW: 60000,
+            KEY_PREFIX: 'domain_lookup_'
         };
 
         function isValidIP(ip) {
@@ -307,6 +328,11 @@
             });
         }
 
+        function isValidDomain(domain) {
+            const domainRegex = /^[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9](?:\.[a-zA-Z]{2,})+$/;
+            return domainRegex.test(domain);
+        }
+
         function showError(message) {
             const error = document.getElementById('error');
             error.textContent = message;
@@ -314,52 +340,46 @@
             document.getElementById('result').style.display = 'none';
         }
 
-        function checkRateLimits() {
+        function checkRateLimits(limits) {
             const now = Date.now();
-            const minuteKey = `${RATE_LIMIT.KEY_PREFIX}minute_${Math.floor(now / RATE_LIMIT.MINUTE_WINDOW)}`;
-            const dayKey = `${RATE_LIMIT.KEY_PREFIX}day_${Math.floor(now / (24 * 60 * 60 * 1000))}`;
+            const minuteKey = `${limits.KEY_PREFIX}minute_${Math.floor(now / limits.MINUTE_WINDOW)}`;
+            const dayKey = `${limits.KEY_PREFIX}day_${Math.floor(now / (24 * 60 * 60 * 1000))}`;
 
-            // Clean up old entries
             for (let i = localStorage.length - 1; i >= 0; i--) {
                 const key = localStorage.key(i);
-                if (key && key.startsWith(RATE_LIMIT.KEY_PREFIX)) {
+                if (key && key.startsWith(limits.KEY_PREFIX)) {
                     const timestamp = parseInt(key.split('_')[2]);
-                    if (now - timestamp > RATE_LIMIT.MINUTE_WINDOW) {
+                    if (now - timestamp > limits.MINUTE_WINDOW) {
                         localStorage.removeItem(key);
                     }
                 }
             }
 
-            // Check minute limit
             const minuteCount = parseInt(localStorage.getItem(minuteKey) || 0);
-            if (minuteCount >= RATE_LIMIT.PER_MINUTE) {
+            if (minuteCount >= limits.PER_MINUTE) {
                 return "Rate limit exceeded. Please wait a minute before trying again.";
             }
 
-            // Check daily limit
             const dayCount = parseInt(localStorage.getItem(dayKey) || 0);
-            if (dayCount >= RATE_LIMIT.PER_DAY) {
+            if (dayCount >= limits.PER_DAY) {
                 return "Daily limit reached. Please try again tomorrow.";
             }
 
-            // Update counters
             localStorage.setItem(minuteKey, minuteCount + 1);
             localStorage.setItem(dayKey, dayCount + 1);
             return null;
         }
 
-        async function lookup() {
-            const input = document.getElementById('domainInput').value.trim();
+        async function lookupIP() {
+            const input = document.getElementById('ipInput').value.trim();
             if (!input) return;
 
-            // Validate IP address format
             if (!isValidIP(input)) {
-                showError('Please enter a valid IP address (e.g., 8.8.8.8). Domain names are not supported.');
+                showError('Please enter a valid IP address (e.g., 8.8.8.8)');
                 return;
             }
 
-            // Check rate limits
-            const rateLimitError = checkRateLimits();
+            const rateLimitError = checkRateLimits(IP_RATE_LIMIT);
             if (rateLimitError) {
                 showError(rateLimitError);
                 return;
@@ -397,9 +417,71 @@
             }
         }
 
+        async function lookupDomain() {
+            const input = document.getElementById('domainInput').value.trim();
+            if (!input) return;
+
+            if (!isValidDomain(input)) {
+                showError('Please enter a valid domain name (e.g., google.com)');
+                return;
+            }
+
+            const rateLimitError = checkRateLimits(DOMAIN_RATE_LIMIT);
+            if (rateLimitError) {
+                showError(rateLimitError);
+                return;
+            }
+
+            const loading = document.getElementById('loading');
+            const result = document.getElementById('result');
+            const error = document.getElementById('error');
+
+            loading.style.display = 'block';
+            result.style.display = 'none';
+            error.style.display = 'none';
+
+            try {
+                const dnsResponse = await fetch(`https://dns.google/resolve?name=${encodeURIComponent(input)}`);
+                const dnsData = await dnsResponse.json();
+
+                if (dnsData.Answer && dnsData.Answer.length > 0) {
+                    const ip = dnsData.Answer[0].data;
+
+                    const response = await fetch(`https://ipwho.is/${ip}`);
+                    const data = await response.json();
+
+                    if (data.success) {
+                        document.getElementById('ip').textContent = data.ip;
+                        document.getElementById('country').textContent = data.country;
+                        document.getElementById('isp').textContent = data.connection.isp;
+                        document.getElementById('org').textContent = data.connection.org || 'N/A';
+                        document.getElementById('region').textContent = data.region;
+                        document.getElementById('city').textContent = data.city;
+                        document.getElementById('timezone').textContent = data.timezone.id;
+
+                        result.style.display = 'block';
+                    } else {
+                        showError(data.message || 'Unable to find information for this domain');
+                    }
+                } else {
+                    showError('Could not resolve domain name to IP address');
+                }
+            } catch (err) {
+                showError('Error looking up domain information. Please try again.');
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+
+        document.getElementById('ipInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                lookupIP();
+            }
+        });
+
         document.getElementById('domainInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
-                lookup();
+                lookupDomain();
             }
         });
     </script>
