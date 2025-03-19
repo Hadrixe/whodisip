@@ -60,7 +60,7 @@ To run locally:
 
 ## ⚡ Powered By
 
-https://ditchbear.com - A up and coming Priavate Email & VPN Service providerm, that believe that privacy is a human right.
+https://ditchbear.com - A up and coming Priavate Emai Service providerm, that believe that privacy is a human right.
 
 ---
 
