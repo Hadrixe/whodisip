@@ -15,13 +15,14 @@
 
             /* Dark theme for the entire page with centered content */
             body {
-                background-color: #0a0a0a;
+                background-color: #1a1523;
                 color: #fff;
                 line-height: 1.6;
                 min-height: 100vh;
                 display: flex;
                 align-items: center;
                 justify-content: center;
+                padding: 40px 0;
             }
 
             /* Main container with responsive width */
@@ -33,11 +34,17 @@
 
             /* Main search box with subtle border and shadow for depth */
             .search-box {
-                background: #252537;
-                padding: 30px;
-                border-radius: 15px;
-                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-                border: 1px solid #383854;
+                background: rgba(255, 255, 255, 0.03);
+                padding: 40px 32px;
+                border-radius: 16px;
+                box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+                border: 1px solid rgba(255, 255, 255, 0.05);
+                transition: all 0.3s ease;
+            }
+
+            .search-box:hover {
+                background: rgba(255, 255, 255, 0.05);
+                border-color: rgba(16, 185, 129, 0.3);
             }
 
             /* App title styling */
@@ -45,40 +52,59 @@
                 text-align: center;
                 color: #fff;
                 margin-bottom: 30px;
-                font-size: 2.2em;
+                font-size: 48px;
+                font-weight: 800;
+                line-height: 1.1;
+            }
+
+            h1::after {
+                content: "IP";
+                background: linear-gradient(135deg, #10b981, #059669);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
             }
 
             /* Each lookup section (IP and Domain) gets its own card */
             .lookup-section {
                 margin-bottom: 30px;
-                padding: 20px;
-                background: #2d2d45;
-                border-radius: 10px;
-                border: 1px solid #383854;
+                padding: 30px;
+                background: rgba(255, 255, 255, 0.03);
+                border-radius: 16px;
+                border: 1px solid rgba(255, 255, 255, 0.05);
+                transition: all 0.3s ease;
             }
 
-            /* Section headers with our purple brand color */
+            .lookup-section:hover {
+                transform: translateY(-5px);
+                background: rgba(255, 255, 255, 0.05);
+                box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+                border-color: rgba(16, 185, 129, 0.3);
+            }
+
+            /* Section headers with our emerald green brand color */
             .lookup-section h2 {
-                color: #8a2be2; /* BlueViolet color for headings */
-                margin-bottom: 15px;
-                font-size: 1.5em;
+                color: #10b981;
+                margin-bottom: 20px;
+                font-size: 24px;
+                font-weight: 700;
             }
 
             /* Input and button container with flex layout */
             .input-group {
                 display: flex;
-                gap: 10px;
+                gap: 12px;
                 margin-bottom: 20px;
             }
 
             /* Input field styling with subtle glow on focus */
             input {
                 flex: 1;
-                padding: 15px;
-                border: 1px solid #383854;
+                padding: 14px;
+                border: 1px solid rgba(255, 255, 255, 0.05);
                 border-radius: 8px;
                 font-size: 16px;
-                background: #2d2d45;
+                background: rgba(255, 255, 255, 0.03);
                 color: #fff;
                 transition: all 0.3s ease;
             }
@@ -86,59 +112,73 @@
             /* Highlight input when focused */
             input:focus {
                 outline: none;
-                border-color: #8a2be2;
-                box-shadow: 0 0 0 2px rgba(138, 43, 226, 0.2);
+                border-color: #10b981;
+                box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
             }
 
             /* Button styling with hover effects */
             button {
-                padding: 15px 30px;
-                background: #8a2be2;
+                padding: 14px 24px;
+                background: #10b981;
                 color: white;
                 border: none;
                 border-radius: 8px;
                 cursor: pointer;
                 transition: all 0.3s ease;
-                font-weight: bold;
+                font-weight: 600;
+                box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
             }
 
             /* Button hover animation - slight lift and color change */
             button:hover {
-                background: #7b1fa2;
+                background: #059669;
                 transform: translateY(-2px);
+                box-shadow: 0 6px 16px rgba(16, 185, 129, 0.3);
             }
 
             /* Results container - hidden by default */
             .result {
-                background: #2d2d45;
-                padding: 20px;
-                border-radius: 10px;
-                margin-top: 20px;
+                background: rgba(255, 255, 255, 0.03);
+                padding: 30px;
+                border-radius: 16px;
+                margin-top: 30px;
                 display: none;
-                border: 1px solid #383854;
+                border: 1px solid rgba(255, 255, 255, 0.05);
+                animation: fadeIn 0.3s ease-out;
+            }
+
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(10px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
             }
 
             /* Each result row with hover effect */
             .result-item {
                 display: flex;
-                margin: 10px 0;
-                padding: 15px;
-                background: #252537;
+                margin: 16px 0;
+                padding: 16px;
+                background: rgba(255, 255, 255, 0.03);
                 border-radius: 8px;
                 transition: all 0.3s ease;
             }
 
             /* Subtle animation on hover for result items */
             .result-item:hover {
-                background: #2d2d45;
+                background: rgba(255, 255, 255, 0.05);
                 transform: translateX(5px);
             }
 
             /* Label for each result field */
             .result-label {
-                font-weight: bold;
+                font-weight: 600;
                 width: 150px;
-                color: #8a2be2;
+                color: #10b981;
             }
 
             /* Loading indicator - hidden by default */
@@ -146,70 +186,62 @@
                 display: none;
                 text-align: center;
                 margin: 20px 0;
-                color: #8a2be2;
+                color: #10b981;
+                font-weight: 600;
             }
 
             /* Error message styling - hidden by default */
             .error {
-                color: #ff6b6b;
+                color: #ef4444;
                 text-align: center;
-                margin-top: 10px;
+                margin-top: 16px;
                 display: none;
-                padding: 10px;
-                background: rgba(255, 107, 107, 0.1);
+                padding: 12px;
+                background: rgba(239, 68, 68, 0.1);
                 border-radius: 8px;
+                animation: fadeIn 0.3s ease-out;
             }
 
             /* Informational notes with subtle background */
             .note {
                 text-align: center;
-                color: #808eb1;
-                margin-top: 15px;
-                font-size: 0.85em;
-                padding: 10px;
-                background: rgba(138, 43, 226, 0.05);
+                color: rgba(255, 255, 255, 0.7);
+                margin-top: 16px;
+                font-size: 14px;
+                padding: 12px;
+                background: rgba(16, 185, 129, 0.05);
                 border-radius: 8px;
-            }
-
-            /* Help text section styling */
-            .help-text {
-                background: #2d2d45;
-                padding: 15px;
-                border-radius: 8px;
-                margin-top: 20px;
-                font-size: 0.9em;
-                color: #a0a0c0;
-                border: 1px solid #383854;
             }
 
             /* Footer with credits and links */
             .footer {
                 text-align: center;
-                margin-top: 20px;
-                padding: 15px;
-                color: #808eb1;
-                font-size: 0.9em;
+                margin-top: 30px;
+                padding: 20px;
+                color: rgba(255, 255, 255, 0.7);
+                font-size: 15px;
                 line-height: 1.8;
             }
 
             /* Footer link styling */
             .footer a {
-                color: #8a2be2;
+                color: #10b981;
                 text-decoration: none;
                 transition: color 0.3s ease;
                 display: inline-block;
                 margin: 0 5px;
+                font-weight: 500;
             }
 
             /* Footer link hover effect */
             .footer a:hover {
-                color: #7b1fa2;
+                color: #059669;
                 text-decoration: underline;
             }
 
             /* Container for footer links */
             .footer-links {
-                margin-top: 10px;
+                margin-top: 16px;
                 display: flex;
                 justify-content: center;
                 gap: 20px;
@@ -220,18 +252,42 @@
             .github-link {
                 display: inline-flex;
                 align-items: center;
-                gap: 5px;
+                gap: 8px;
+                padding: 8px 16px;
+                background: rgba(255, 255, 255, 0.03);
+                border-radius: 8px;
+                transition: all 0.3s ease;
+            }
+
+            .github-link:hover {
+                background: rgba(255, 255, 255, 0.05);
+                transform: translateY(-2px);
             }
 
             /* GitHub icon sizing */
             .github-link svg {
-                width: 16px;
-                height: 16px;
-                fill: currentColor;
+                width: 18px;
+                height: 18px;
+                fill: #10b981;
+            }
+
+            /* Mobile responsiveness - tablet */
+            @media (max-width: 991px) {
+                .search-box {
+                    padding: 32px 24px;
+                }
+
+                h1 {
+                    font-size: 42px;
+                }
+
+                .lookup-section {
+                    padding: 24px;
+                }
             }
 
             /* Mobile responsiveness - stack elements on small screens */
-            @media (max-width: 600px) {
+            @media (max-width: 768px) {
                 .input-group {
                     flex-direction: column;
                 }
@@ -240,17 +296,45 @@
                     width: 100%;
                 }
 
+                h1 {
+                    font-size: 36px;
+                }
+
+                .lookup-section h2 {
+                    font-size: 22px;
+                }
+            }
+
+            /* Responsive Design - Small Mobile */
+            @media (max-width: 480px) {
+                .search-box {
+                    padding: 28px 20px;
+                }
+
+                h1 {
+                    font-size: 32px;
+                    margin-bottom: 24px;
+                }
+
+                .lookup-section {
+                    padding: 20px;
+                }
+
                 .result-item {
                     flex-direction: column;
                 }
 
                 .result-label {
-                    margin-bottom: 5px;
+                    margin-bottom: 8px;
                 }
 
                 .footer-links {
                     flex-direction: column;
-                    gap: 10px;
+                    gap: 12px;
+                }
+
+                .result {
+                    padding: 24px 16px;
                 }
             }
         </style>
